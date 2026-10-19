@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Pedidos | Sushi Maré</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header class="topo">
+    <a class="logo" href="{{ url_for('admin') }}">Sushi Maré · Pedidos</a>
+    <form method="post" action="{{ url_for('admin_sair') }}"><button class="mini-link" type="submit">Sair</button></form>
+  </header>
+  <main class="admin">
+    <nav class="filtros" aria-label="Filtrar por status">
+      <a href="{{ url_for('admin') }}" class="{{ 'ativo' if not filtro }}">Todos</a>
+      {% for s in status_lista %}
+      <a href="{{ url_for('admin', status=s) }}" class="{{ 'ativo' if filtro == s }}">{{ s }}</a>
+      {% endfor %}
+    </nav>
+
+    {% for p in pedidos %}
+    <article class="ped">
+      <div class="ped-topo">
+        <h2>Pedido #{{ p.numero }}</h2>
+        <span class="selo">{{ p.status }}</span>
+        <time>{{ p.criado_em | hora }}</time>
+      </div>
+      <p><strong>{{ p.nome }}</strong> · <a href="tel:{{ p.telefone }}">{{ p.telefone }}</a><br>
+         {{ p.endereco }}<br>Pagamento: {{ p.pagamento }}</p>
+      {% if p.observacoes %}<p class="obs">Obs.: {{ p.observacoes }}</p>{% endif %}
+      <ul class="itens">
+        {% for i in p.itens %}
+        <li><span class="item-nome">{{ i.qtd }}× {{ i.nome }}</span><span class="sub">{{ (i.qtd * i.preco_unit) | brl }}</span></li>
+        {% endfor %}
+      </ul>
+      <p class="total"><span>Total</span> <strong>{{ p.total | brl }}</strong></p>
+      <form class="status-form" method="post" action="{{ url_for('admin_status', pedido_id=p.id) }}">
+        <select name="status" aria-label="Status do pedido {{ p.numero }}">
+          {% for s in status_lista %}<option {{ 'selected' if s == p.status }}>{{ s }}</option>{% endfor %}
+        </select>
+        <button class="btn" type="submit">Atualizar</button>
+      </form>
+    </article>
+    {% else %}
+    <p class="vazio">Nenhum pedido por aqui ainda.</p>
+    {% endfor %}
+  </main>
+</body>
+</html>

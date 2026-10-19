@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sushi Maré | Peça online</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header class="topo">
+    <a class="logo" href="{{ url_for('index') }}">Sushi Maré</a>
+    <a class="topo-carrinho" href="#carrinho">Pedido ({{ qtd_total }})</a>
+  </header>
+
+  <section class="hero">
+    <h1>Sushi fresco,<br>direto na sua porta.</h1>
+    <p>Escolha seus pratos, monte o pedido e finalize em poucos cliques.</p>
+    <svg class="onda" viewBox="0 0 1200 60" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M0 30 Q 150 0 300 30 T 600 30 T 900 30 T 1200 30 V60 H0Z"/>
+    </svg>
+  </section>
+
+  <main class="layout">
+    <div class="cardapio">
+      {% for categoria, itens_cat in secoes %}
+      <section class="secao">
+        <h2>{{ categoria }}</h2>
+        <div class="lista">
+          {% for item in itens_cat %}
+          <article class="prato">
+            {% if item.foto %}
+            <img class="prato-foto" src="{{ url_for('static', filename=item.foto) }}" alt="{{ item.nome }}" loading="lazy">
+            {% else %}
+            <div class="prato-emoji" aria-hidden="true">{{ item.emoji }}</div>
+            {% endif %}
+            <div class="prato-info">
+              <h3>{{ item.nome }}</h3>
+              <p>{{ item.desc }}</p>
+              <strong>{{ item.preco | brl }}</strong>
+            </div>
+            <form method="post" action="{{ url_for('adicionar', item_id=item.id) }}">
+              <button class="btn" type="submit" aria-label="Adicionar {{ item.nome }}">Adicionar</button>
+            </form>
+          </article>
+          {% endfor %}
+        </div>
+      </section>
+      {% endfor %}
+    </div>
+
+    <aside class="carrinho" id="carrinho">
+      <h2>Seu pedido</h2>
+      {% if itens %}
+        <ul class="itens">
+          {% for i in itens %}
+          <li>
+            <span class="item-nome">{{ i.nome }}</span>
+            <span class="qtd">
+              <form method="post" action="{{ url_for('diminuir', item_id=i.id) }}"><button class="mini" aria-label="Remover um">−</button></form>
+              <b>{{ i.qtd }}</b>
+              <form method="post" action="{{ url_for('adicionar', item_id=i.id) }}"><button class="mini" aria-label="Adicionar um">+</button></form>
+            </span>
+            <span class="sub">{{ i.subtotal | brl }}</span>
+          </li>
+          {% endfor %}
+        </ul>
+        <p class="total"><span>Total</span> <strong>{{ total | brl }}</strong></p>
+
+        {% if erro %}<p class="erro" role="alert">{{ erro }}</p>{% endif %}
+
+        <form class="dados" method="post" action="{{ url_for('pedido') }}">
+          <label>Nome <input name="nome" required autocomplete="name"></label>
+          <label>Telefone <input name="telefone" type="tel" required autocomplete="tel"></label>
+          <label>Endereço de entrega <input name="endereco" required autocomplete="street-address"></label>
+          <label>Pagamento
+            <select name="pagamento">
+              <option>Pix</option><option>Cartão na entrega</option><option>Dinheiro</option>
+            </select>
+          </label>
+          <label>Observações <textarea name="observacoes" rows="2" placeholder="Ex.: sem cebolinha"></textarea></label>
+          <button class="btn btn-grande" type="submit">Finalizar pedido</button>
+        </form>
+      {% else %}
+        {% if erro %}<p class="erro" role="alert">{{ erro }}</p>{% endif %}
+        <p class="vazio">Nenhum item ainda. Toque em “Adicionar” nos pratos ao lado.</p>
+      {% endif %}
+    </aside>
+  </main>
+
+  <footer class="rodape">Sushi Maré · Aberto todos os dias, das 18h às 23h</footer>
+</body>
+</html>

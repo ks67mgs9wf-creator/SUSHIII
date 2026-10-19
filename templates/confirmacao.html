@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pedido confirmado | Sushi Maré</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header class="topo"><a class="logo" href="{{ url_for('index') }}">Sushi Maré</a></header>
+  <main class="confirmacao">
+    <h1>Pedido recebido, {{ pedido.nome }}!</h1>
+    <p>Número do pedido: <strong>#{{ pedido.numero }}</strong>. Já estamos preparando.</p>
+    <ul class="itens">
+      {% for i in itens %}
+      <li><span class="item-nome">{{ i.qtd }}× {{ i.nome }}</span><span class="sub">{{ i.subtotal | brl }}</span></li>
+      {% endfor %}
+    </ul>
+    <p class="total"><span>Total</span> <strong>{{ pedido.total | brl }}</strong></p>
+    <p>Entrega em: {{ pedido.endereco }}<br>Pagamento: {{ pedido.pagamento }}</p>
+    <a class="btn" href="{{ url_for('index') }}">Fazer novo pedido</a>
+  </main>
+</body>
+</html>
